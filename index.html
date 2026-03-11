@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DELULU JSC - Email Composer</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --delulu-purple: #6C5CE7;
+    --delulu-purple-dark: #4834D4;
+    --delulu-yellow: #F1C40F;
+    --delulu-pink: #FF7675;
+    --delulu-dark: #2D3436;
+    --delulu-bg: #F9F9FB;
+    --border: #E0E0E0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--delulu-bg);
+    color: var(--delulu-dark);
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--delulu-purple) 0%, var(--delulu-purple-dark) 100%);
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+    color: white;
+  }
+  .header-info h1 { 
+    font-size: 1.5rem; 
+    font-weight: 800; 
+    color: var(--delulu-yellow); 
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .header-info p { 
+    font-size: 0.8rem; 
+    color: #fff; 
+    font-style: italic;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+  .header-logo { 
+    height: 65px; 
+    background: white; 
+    padding: 5px; 
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1200px; margin: 30px auto;
+    display: grid; grid-template-columns: 420px 1fr;
+    gap: 30px; padding: 0 20px;
+  }
+
+  .card {
+    background: #fff; border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.1);
+    padding: 25px; border: 1px solid rgba(108, 92, 231, 0.1);
+  }
+  .card-title {
+    font-size: 0.9rem; font-weight: 800; text-transform: uppercase;
+    color: var(--delulu-purple); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title::after { content:''; flex:1; height:2px; background: var(--delulu-yellow); }
+
+  /* FORM */
+  .field { margin-bottom: 18px; }
+  label { display: block; font-size: 0.75rem; font-weight: 700; color: #636e72; margin-bottom: 6px; text-transform: uppercase; }
+  input, textarea {
+    width: 100%; border: 2px solid #F1F2F6;
+    border-radius: 12px; padding: 12px 15px;
+    font-family: inherit; font-size: 0.95rem;
+    transition: all 0.3s; background: #FDFDFF;
+  }
+  input:focus, textarea:focus {
+    outline: none; border-color: var(--delulu-purple);
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+    background: white;
+  }
+
+  .btn-gen {
+    width: 100%; background: var(--delulu-purple); color: white;
+    border: none; border-radius: 15px; padding: 15px;
+    font-weight: 800; cursor: pointer; margin-top: 10px;
+    box-shadow: 0 6px 0 #4834D4; transition: all 0.1s;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .btn-gen:active { transform: translateY(4px); box-shadow: 0 2px 0 #4834D4; }
+
+  /* PREVIEW AREA */
+  .preview-card {
+    background: #fff; border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    display: flex; flex-direction: column; overflow: hidden;
+    border: 1px solid #eee;
+  }
+  .toolbar {
+    padding: 15px 30px; background: #FDFDFF;
+    border-bottom: 1px solid #eee;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .btn-copy {
+    background: var(--delulu-yellow); color: var(--delulu-dark);
+    border: none; border-radius: 50px; padding: 10px 25px;
+    font-weight: 800; cursor: pointer; font-size: 0.85rem;
+    box-shadow: 0 4px 0 #D4AC0D; transition: all 0.1s;
+  }
+  .btn-copy:active { transform: translateY(2px); box-shadow: 0 2px 0 #D4AC0D; }
+  .btn-copy.success { background: #55EFC4; box-shadow: 0 4px 0 #00B894; color: #004b3a; }
+
+  .email-area { padding: 40px; overflow-y: auto; flex: 1; background: #fff; }
+
+  /* QUICK TEMPLATES */
+  .tpl-list { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; }
+  .tpl-item {
+    padding: 8px 15px; background: white; border: 2px solid #F1F2F6;
+    border-radius: 50px; font-size: 0.75rem; font-weight: 700; color: var(--delulu-purple);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tpl-item:hover { border-color: var(--delulu-purple); background: var(--delulu-purple); color: white; }
+
+  .toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: var(--delulu-dark); color: white; padding: 15px 30px;
+    border-radius: 15px; font-weight: 700;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-info">
+    <h1>DELULU JSC</h1>
+    <p>Do Everything Legal, Untangle Life’s Unknowns</p>
+  </div>
+  <img src="https://i.ibb.co/1BnfQf1/35da2b138ce0.png" alt="DELULU Logo" class="header-logo">
+</header>
+
+<div class="container">
+  <div class="card">
+    <div class="card-title">Mẫu DELULU nhanh</div>
+    <div class="tpl-list">
+      <div class="tpl-item" onclick="loadTpl('intro')">✨ Giới thiệu dịch vụ</div>
+      <div class="tpl-item" onclick="loadTpl('proposal')">📊 Gửi báo giá</div>
+      <div class="tpl-item" onclick="loadTpl('legal')">⚖️ Tư vấn pháp lý</div>
+      <div class="tpl-item" onclick="loadTpl('meeting')">☕ Mời cafe trao đổi</div>
+    </div>
+
+    <div class="card-title">Nội dung chi tiết</div>
+    <div class="field">
+      <label>Kính gửi</label>
+      <input id="recipient" type="text" placeholder="Họ tên đối tác/khách hàng">
+    </div>
+    <div class="field">
+      <label>Tiêu đề (V/v)</label>
+      <input id="subject" type="text" placeholder="Chủ đề email">
+    </div>
+    <div class="field">
+      <label>Thông điệp chính</label>
+      <textarea id="message" rows="8" placeholder="Viết những điều tuyệt vời tại đây..."></textarea>
+    </div>
+    <div class="field">
+      <label>Người gửi</label>
+      <input id="sender" type="text" placeholder="Tên của bạn @ DELULU JSC">
+    </div>
+
+    <button class="btn-gen" onclick="generate()">✦ TẠO EMAIL SIÊU ĐẸP</button>
+  </div>
+
+  <div class="preview-card">
+    <div class="toolbar">
+      <span style="font-size: 0.75rem; font-weight: 800; color: #B2BEC3; letter-spacing: 1px;">GMAIL PREVIEW</span>
+      <button class="btn-copy" id="copyBtn" onclick="copyToGmail()">SAO CHÉP VÀO GMAIL</button>
+    </div>
+    <div class="email-area" id="emailArea">
+      <div id="placeholder" style="text-align:center; color:#DFE6E9; padding-top:100px;">
+        <p style="font-size: 60px;">🚀</p>
+        <p style="font-weight: 700; margin-top: 10px;">Dữ liệu DELULU sẽ hiện ở đây</p>
+      </div>
+      <div id="emailPreviewContent"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">🔥 Đã sao chép! Dán vào Gmail và bùng nổ thôi!</div>
+
+<script>
+  const LOGO_URL = "https://i.ibb.co/1BnfQf1/35da2b138ce0.png";
+  const SLOGAN = "Do Everything Legal, Untangle Life’s Unknowns";
+
+  const TEMPLATES = {
+    intro: {
+      subject: "Chào mừng bạn đến với thế giới giải pháp của DELULU JSC",
+      message: "Tại DELULU JSC, chúng tôi tin rằng mọi rắc rối pháp lý đều có chìa khóa để gỡ rối. \n\nChúng tôi mang đến giải pháp eCard thông minh và tư vấn vận hành doanh nghiệp giúp bạn tập trung vào sáng tạo, còn phần 'Legal' cứ để chúng tôi lo. \n\nBạn đã sẵn sàng để 'Untangle' những vướng mắc chưa?"
+    },
+    proposal: {
+      subject: "Đề xuất giải pháp và Báo giá dịch vụ - DELULU JSC",
+      message: "Dựa trên trao đổi trước đó, DELULU JSC xin gửi đến bạn bản báo giá chi tiết cho các hạng mục: \n\n1. Thiết kế định danh số (eCard Premium)\n2. Tối ưu quy trình vận hành Legal-Tech\n\nChúng tôi cam kết mang lại giá trị vượt xa kỳ vọng với chi phí tối ưu nhất."
+    },
+    legal: {
+      subject: "Ý kiến tư vấn về vấn đề pháp lý doanh nghiệp",
+      message: "Đội ngũ chuyên gia tại DELULU JSC đã xem xét hồ sơ của bạn. Dưới góc độ 'Do Everything Legal', chúng tôi khuyến nghị bạn thực hiện các bước sau để đảm bảo an toàn tuyệt đối cho dự án sắp tới..."
+    },
+    meeting: {
+      subject: "Lời mời kết nối và trao đổi ý tưởng điên rồ",
+      message: "Ngọc @ DELULU đây! \n\nMình có một vài ý tưởng rất 'Delulu' nhưng cực kỳ tiềm năng cho dự án của bạn. Bạn có rảnh vào thứ Ba tới để chúng ta cùng ngồi xuống và gỡ rối những điều chưa biết không?"
+    }
+  };
+
+  function loadTpl(key) {
+    document.getElementById('subject').value = TEMPLATES[key].subject;
+    document.getElementById('message').value = TEMPLATES[key].message;
+  }
+
+  function generate() {
+    const recipient = document.getElementById('recipient').value || "Người bạn của DELULU";
+    const subject = document.getElementById('subject').value || "Thông tin từ DELULU JSC";
+    const message = document.getElementById('message').value || "";
+    const sender = document.getElementById('sender').value || "Team DELULU";
+
+    const html = `
+      <div id="delulu-wrapper" style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.8; color: #2D3436; max-width: 600px; margin: 0 auto; border: 2px solid #6C5CE7; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+        <!-- Top Bar Decor -->
+        <div style="height: 8px; background: linear-gradient(90deg, #6C5CE7, #F1C40F, #FF7675);"></div>
+
+        <!-- Header -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding: 25px 30px; background: #6C5CE7; background: linear-gradient(135deg, #6C5CE7 0%, #4834D4 100%);">
+          <tr>
+            <td>
+              <div style="color: #F1C40F; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">DELULU JSC</div>
+              <div style="color: #ffffff; font-size: 10px; font-weight: bold; margin-top: 4px; letter-spacing: 0.5px; opacity: 0.9;">${SLOGAN}</div>
+            </td>
+            <td align="right">
+              <img src="${LOGO_URL}" height="55" style="display: block; background: #fff; padding: 4px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            </td>
+          </tr>
+        </table>
+
+        <!-- Body -->
+        <div style="padding: 35px 30px;">
+          <div style="margin-bottom: 25px; background: #F9F9FB; border-left: 6px solid #F1C40F; padding: 15px 20px; border-radius: 4px;">
+            <span style="color: #6C5CE7; font-weight: bold; font-size: 13px; text-transform: uppercase;">Subject:</span>
+            <span style="font-weight: 800; font-size: 15px; color: #2D3436; margin-left: 10px;">${subject}</span>
+          </div>
+
+          <p style="margin-bottom: 15px; font-size: 15px;">Kính gửi <b>${recipient}</b>,</p>
+          
+          <div style="white-space: pre-line; margin-bottom: 30px; font-size: 15px; color: #444;">${message}</div>
+
+          <!-- Signature -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+            <tr>
+              <td>
+                <p style="margin: 0; font-size: 14px; color: #636E72;">Trân trọng,</p>
+                <p style="margin: 5px 0 0; font-size: 16px; font-weight: 800; color: #6C5CE7;">${sender}</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #2D3436; padding: 25px; text-align: center;">
+          <div style="color: #F1C40F; font-size: 13px; font-weight: 800; margin-bottom: 5px;">CÔNG TY CỔ PHẦN DELULU</div>
+          <div style="color: #B2BEC3; font-size: 11px;">
+            Địa chỉ: 120 Trương Văn Bang, phường Cát Lái, TP. Hồ Chí Minh<br>
+            Hotline: 0876 199 186 | Web: https://sites.google.com/view/smartskiss
+          </div>
+          <div style="margin-top: 15px; color: #FF7675; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">Legal • Tech • Creative</div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('emailPreviewContent').innerHTML = html;
+    document.getElementById('placeholder').style.display = 'none';
+  }
+
+  async function copyToGmail() {
+    const content = document.getElementById('emailPreviewContent').innerHTML;
+    if (!content) {
+      alert("Bạn chưa tạo nội dung mà!");
+      return;
+    }
+
+    try {
+      const blob = new Blob([content], { type: 'text/html' });
+      const data = [new ClipboardItem({ 'text/html': blob })];
+      await navigator.clipboard.write(data);
+
+      const btn = document.getElementById('copyBtn');
+      const originalText = btn.innerText;
+      btn.innerText = "CHÁY QUÁ! ĐÃ COPY";
+      btn.classList.add('success');
+      
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.classList.remove('success');
+        toast.classList.remove('show');
+      }, 3000);
+    } catch (err) {
+      alert("Huhu, trình duyệt không cho copy HTML. Bạn hãy quét chuột chọn toàn bộ phần xem trước rồi Ctrl+C nhé!");
+    }
+  }
+</script>
+</body>
+</html>
+
